@@ -1,5 +1,11 @@
 package gpioServer;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+import static gpioCommon.NetConstants.SERVERTCP;
+
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
@@ -12,6 +18,7 @@ public class Server {
 	public static final GpioController gpio = GpioFactory.getInstance();//GPIO allocator
 	public static final GpioPinDigitalOutput pin1 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01, "MyRelay", PinState.HIGH);//make pin 1 an output pin and set it to HIGH
 	public static final GpioPinDigitalInput myButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_DOWN);//make pin2 an input pin and enable pulldown resistor to avoid floating value pin
+	static ServerSocket mySocket;
 	
 	/**
 	 * Function used to trigger an output pin in a synchronized manner.
@@ -26,9 +33,20 @@ public class Server {
 	
 	public static void main(String[] args) {
 		myButton.addListener(new ButtonListener());//attach listener to button
-		UDPListener myUDPListener= new UDPListener();//attach a listener to socket
-		myUDPListener.start();//start the socket listener
-		while(true);//TODO implement a proper kill-switch //basically keep the program running forever
+		try {
+			mySocket=new ServerSocket(SERVERTCP);
+			Socket accepted=mySocket.accept();
+			NetListener myNetListener= new NetListener(accepted);//attach a listener to socket
+			myNetListener.start();//start the socket listener
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			try {
+				mySocket.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}
 		/*
 		what needs to happen here 
 		is to wait for the trigger 
