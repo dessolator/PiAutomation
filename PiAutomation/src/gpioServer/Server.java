@@ -33,11 +33,14 @@ public class Server {
 	
 	public static void main(String[] args) {
 		myButton.addListener(new ButtonListener());//attach listener to button
+		
 		try {
 			mySocket=new ServerSocket(SERVERTCP);
-			Socket accepted=mySocket.accept();
-			NetListener myNetListener= new NetListener(accepted);//attach a listener to socket
-			myNetListener.start();//start the socket listener
+			while(true){
+				Socket accepted=mySocket.accept();
+				NetListener myNetListener= new NetListener(accepted);//attach a listener to socket
+				myNetListener.start();//start the socket listener
+			}
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -47,6 +50,7 @@ public class Server {
 				e1.printStackTrace();
 			}
 		}
+		
 		/*
 		what needs to happen here 
 		is to wait for the trigger 

@@ -4,20 +4,14 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.Socket;
-import java.net.SocketException;
-
 import com.pi4j.io.gpio.PinState;
-
 import static gpioCommon.NetConstants.FLIP;
 import static gpioCommon.NetConstants.STATUS;
 import static gpioCommon.NetConstants.HIGH;
 import static gpioCommon.NetConstants.LOW;
-import static gpioCommon.NetConstants.CLIENTUDP;
-import static gpioCommon.NetConstants.SERVERTCP;
-//TODO SWITCH TO TCP
+
+
 public class NetListener extends Thread {
 	Socket mySocket;//the socket for this class
 	String sendData;
@@ -34,12 +28,12 @@ public class NetListener extends Thread {
 	
 	@Override
 	public void run() {
-		 while(true){//TODO well, basically run untill interrupted, should be handled a little more gracefully
+//		 while(true){//TODO well, basically run untill interrupted, should be handled a little more gracefully
 			try {
 				 BufferedReader inFromClient =new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
 				 DataOutputStream outToClient = new DataOutputStream(mySocket.getOutputStream());
 				 String sentence;
-				sentence = inFromClient.readLine();
+				 sentence = inFromClient.readLine();
 				 System.out.println(sentence);
 				 if(sentence.trim().equals(FLIP)){//if the pin is to be flipped
 					 Server.synchronizedToggle(Server.pin1);//flip the pin//TODO concurrency is horrid
@@ -53,12 +47,13 @@ public class NetListener extends Thread {
 					 }
 					 outToClient.writeBytes(sendData+'\n');
 				 }
+				 mySocket.close();
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 		 }
 			 
 		 
-	}
+//	}
 	
 }
