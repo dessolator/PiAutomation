@@ -13,29 +13,28 @@ import static gpioCommon.NetConstants.LOW;
 
 public class NetListener extends Thread {
 	Socket mySocket;//the socket for this class
-	String sendData;
+	String sendData;//string used to send the query response
 	
 	
 	/**
-	 * Constructor for UDPListener opens a UDP(?) socket on port 55000
+	 * Constructor for NetListener attaches the passed socket.
 	 * @param accepted 
 	 */
 	public NetListener(Socket accepted) {
 		super();
-		mySocket = accepted;
+		mySocket = accepted;//link the socket.
 	}
 	
 	@Override
 	public void run() {
-		 while(true){//TODO well, basically run untill interrupted, should be handled a little more gracefully
+		 while(true){
 			try {
-				 DataInputStream inFromClient =new DataInputStream(mySocket.getInputStream());
-				 DataOutputStream outToClient = new DataOutputStream(mySocket.getOutputStream());
-				 String sentence;
-				 sentence = inFromClient.readUTF();
-				 sentence=sentence.trim();
-				 String [] parts=sentence.split("_");
-				 System.out.println(parts[0]);
+				 DataInputStream inFromClient =new DataInputStream(mySocket.getInputStream());//open input stream
+				 DataOutputStream outToClient = new DataOutputStream(mySocket.getOutputStream());//open output stream
+				 String sentence = inFromClient.readUTF();//read the command
+				 sentence=sentence.trim();//rip off the leading and trailing '\0'
+				 String [] parts=sentence.split("_");//split the command and the pin number
+				 System.out.println(parts[0]);//print out the received command
 				 
 				 if(parts[0].trim().equals(STATUS)){//if the status was queried
 					 if(Server.pin1.getState().equals(PinState.HIGH)){//if the pin status is high
@@ -44,14 +43,13 @@ public class NetListener extends Thread {
 					 else{
 						 sendData=LOW;//make appropriate message
 					 }
-					 outToClient.writeUTF(sendData+'\n');
-					 outToClient.flush();
+					 outToClient.writeUTF(sendData+'\n');//send the appropriate response 
+					 outToClient.flush();//flush the stream.
 				 }
 				 if(parts[0].equals(FLIP)){//if the pin is to be flipped
-					 Server.synchronizedToggle(Integer.parseInt(parts[1]));//flip the pin//TODO concurrency is horrid
+					 Server.synchronizedToggle(Integer.parseInt(parts[1]));//flip the pin
 				 }
 			} catch (IOException e1) {
-				//TODO maybe close the streams?
 				break;//if the client closes the connection somewhat gracefully close the thread
 			}
 		 }

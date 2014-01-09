@@ -18,21 +18,25 @@ import com.pi4j.io.gpio.RaspiPin;
 
 public class Server {
 	public static GpioController gpio;//GPIO allocator
-	public static GpioPinDigitalOutput pin1;
-	public static GpioPinDigitalInput myButton;
-	static ServerSocket mySocket;
+	public static GpioPinDigitalOutput pin1;//TODO need to change to arraylist
+	public static GpioPinDigitalInput myButton;//TODO need to change to arraylist
+	static ServerSocket mySocket;//acceptor socket
 	
 	/**
 	 * Function used to trigger an output pin in a synchronized manner.
 	 * @param i The pin to trigger.
 	 */
-	public static synchronized void synchronizedToggle(int i){
+	public static synchronized void synchronizedToggle(int i){//TODO need to make this more concurrent.
 		getDigitalOutputPinByNumber(i).toggle();//toggle the switch in a synchronized manner
-		System.out.println("toggling");
 	}
 	
 	
 	
+	/**
+	 * Function used to get the DigitalOutputPin by it's number.
+	 * @param i Number of the pin to get.
+	 * @return The DigitalOutputPin object.
+	 */
 	private static GpioPinDigitalOutput getDigitalOutputPinByNumber(int i) {
 		for(GpioPin p : gpio.getProvisionedPins()){//for each pin in the provisioned pins
 			if(p.getName().equals("PIN_"+i)){//check if it's name matches
@@ -54,17 +58,17 @@ public class Server {
 		myButton.addListener(new ButtonListener(1));//attach listener to button
 		
 		try {
-			mySocket=new ServerSocket(SERVERTCP);
+			mySocket=new ServerSocket(SERVERTCP);//open the acceptor socket
 			while(true){
-				Socket accepted=mySocket.accept();
-				NetListener myNetListener= new NetListener(accepted);//attach a listener to socket
+				Socket accepted=mySocket.accept();//open a new socket for the new connection
+				NetListener myNetListener= new NetListener(accepted);//attach a listener to the new socket
 				myNetListener.start();//start the socket listener
 			}
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			e.printStackTrace();//if opening a server socket fails or the socket gets broken.
 			try {
-				mySocket.close();
+				mySocket.close();//attempt to close the socket.
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}

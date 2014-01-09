@@ -5,16 +5,16 @@ import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 
 public class ButtonListener implements GpioPinListenerDigital {
 
-	int myPin;
+	int myPin;//the number of the pin the switch is connected to.
 	
 	public ButtonListener(int myPin) {
 		super();
-		this.myPin = myPin;
+		this.myPin = myPin;//set pin number.
 	}
 
 	@Override
 	public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
-		Server.synchronizedToggle(myPin);//TODO concurrency is horrid
+		Server.synchronizedToggle(myPin);
 	}
 
 }
