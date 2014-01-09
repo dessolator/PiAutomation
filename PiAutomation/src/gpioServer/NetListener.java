@@ -1,9 +1,8 @@
 package gpioServer;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.Socket;
 import com.pi4j.io.gpio.PinState;
 import static gpioCommon.NetConstants.FLIP;
@@ -28,32 +27,36 @@ public class NetListener extends Thread {
 	
 	@Override
 	public void run() {
-//		 while(true){//TODO well, basically run untill interrupted, should be handled a little more gracefully
+		 while(true){//TODO well, basically run untill interrupted, should be handled a little more gracefully
 			try {
-				 BufferedReader inFromClient =new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
+				 DataInputStream inFromClient =new DataInputStream(mySocket.getInputStream());
 				 DataOutputStream outToClient = new DataOutputStream(mySocket.getOutputStream());
 				 String sentence;
-				 sentence = inFromClient.readLine();
-				 System.out.println(sentence);
-				 if(sentence.trim().equals(FLIP)){//if the pin is to be flipped
-					 Server.synchronizedToggle(Server.pin1);//flip the pin//TODO concurrency is horrid
-				 }
-				 if(sentence.trim().equals(STATUS)){//if the status was queried
+				 sentence = inFromClient.readUTF();
+				 sentence=sentence.trim();
+				 String [] parts=sentence.split("_");
+				 System.out.println(parts[0]);
+				 
+				 if(parts[0].trim().equals(STATUS)){//if the status was queried
 					 if(Server.pin1.getState().equals(PinState.HIGH)){//if the pin status is high
 						sendData=HIGH;//make appropriate message
 					 }
 					 else{
 						 sendData=LOW;//make appropriate message
 					 }
-					 outToClient.writeBytes(sendData+'\n');
+					 outToClient.writeUTF(sendData+'\n');
+					 outToClient.flush();
 				 }
-				 mySocket.close();
+				 if(parts[0].equals(FLIP)){//if the pin is to be flipped
+					 Server.synchronizedToggle(Integer.parseInt(parts[1]));//flip the pin//TODO concurrency is horrid
+				 }
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				//TODO maybe close the streams?
+				break;//if the client closes the connection somewhat gracefully close the thread
 			}
 		 }
 			 
 		 
-//	}
+	}
 	
 }
