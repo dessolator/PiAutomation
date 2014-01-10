@@ -1,6 +1,6 @@
 package gpioCommon;
 
-import gpioServer.ButtonListener;
+import gpioServer.SwitchListener;
 import gpioServer.Server;
 
 import java.io.Serializable;
@@ -38,7 +38,7 @@ public class PinLayout implements Serializable{
 			Server.provisionOutputPin(o.pinNumber);
 		}
 		for(InputPinProto i:inPins){
-			Server.provisionInputPin(i.inputPinNumber).addListener(new ButtonListener(i.switchingPinNumber));
+			Server.provisionInputPin(i.inputPinNumber).addListener(new SwitchListener(i.switchingPinNumber));
 		}
 		
 	}
