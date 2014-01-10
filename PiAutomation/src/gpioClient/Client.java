@@ -48,7 +48,7 @@ public class Client {
 	 * @throws IOException Thrown if the socket streams were closed or broken.
 	 */
 	static void flip(int i) throws IOException{
-		outToServer.writeUTF(FLIP+'_'+i+'\n');//send the FLIP command to the server
+		outToServer.writeUTF(FLIP+'_'+i);//send the FLIP command to the server
 		outToServer.flush();//flush the stream
 	}
 	
@@ -59,7 +59,7 @@ public class Client {
 	 * @throws IOException Thrown if the socket streams were closed or broken.
 	 */
 	static RelayStatus query(int i) throws IOException{
-		outToServer.writeUTF(STATUS+'_'+i+'\n');//send the STATUS command to the server
+		outToServer.writeUTF(STATUS+'_'+i);//send the STATUS command to the server
 		outToServer.flush();//flush the stream
 		String sentence = inFromServer.readUTF();//read status response from the server
 		if(sentence.trim().equals(HIGH)){//if the return value was HIGH

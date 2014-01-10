@@ -37,13 +37,13 @@ public class NetListener extends Thread {
 				 System.out.println(parts[0]);//print out the received command
 				 
 				 if(parts[0].trim().equals(STATUS)){//if the status was queried
-					 if(Server.pin1.getState().equals(PinState.HIGH)){//if the pin status is high
+					 if(Server.getDigitalOutputPinByNumber(Integer.parseInt(parts[1])).getState().equals(PinState.HIGH)){//if the pin status is high
 						sendData=HIGH;//make appropriate message
 					 }
 					 else{
 						 sendData=LOW;//make appropriate message
 					 }
-					 outToClient.writeUTF(sendData+'\n');//send the appropriate response 
+					 outToClient.writeUTF(sendData);//send the appropriate response 
 					 outToClient.flush();//flush the stream.
 				 }
 				 if(parts[0].equals(FLIP)){//if the pin is to be flipped

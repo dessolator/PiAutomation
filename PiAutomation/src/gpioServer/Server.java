@@ -3,9 +3,8 @@ package gpioServer;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-
+import com.pi4j.io.gpio.Pin;
 import static gpioCommon.NetConstants.SERVERTCP;
-
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPin;
@@ -18,9 +17,19 @@ import com.pi4j.io.gpio.RaspiPin;
 
 public class Server {
 	public static GpioController gpio;//GPIO allocator
-	public static GpioPinDigitalOutput pin1;//TODO need to change to arraylist
-	public static GpioPinDigitalInput myButton;//TODO need to change to arraylist
 	static ServerSocket mySocket;//acceptor socket
+	static Pin [] pins={
+			RaspiPin.GPIO_00,RaspiPin.GPIO_01,
+			RaspiPin.GPIO_02,RaspiPin.GPIO_03,
+			RaspiPin.GPIO_04,RaspiPin.GPIO_05,
+			RaspiPin.GPIO_06,RaspiPin.GPIO_07,
+			RaspiPin.GPIO_08,RaspiPin.GPIO_09,
+			RaspiPin.GPIO_10,RaspiPin.GPIO_11,
+			RaspiPin.GPIO_12,RaspiPin.GPIO_13,
+			RaspiPin.GPIO_14,RaspiPin.GPIO_15,
+			RaspiPin.GPIO_16,RaspiPin.GPIO_17,
+			RaspiPin.GPIO_18,RaspiPin.GPIO_19,
+			RaspiPin.GPIO_20};
 	
 	/**
 	 * Function used to trigger an output pin in a synchronized manner.
@@ -37,7 +46,7 @@ public class Server {
 	 * @param i Number of the pin to get.
 	 * @return The DigitalOutputPin object.
 	 */
-	private static GpioPinDigitalOutput getDigitalOutputPinByNumber(int i) {
+	public static GpioPinDigitalOutput getDigitalOutputPinByNumber(int i) {
 		for(GpioPin p : gpio.getProvisionedPins()){//for each pin in the provisioned pins
 			if(p.getName().equals("PIN_"+i)){//check if it's name matches
 				if(p.isMode(PinMode.DIGITAL_OUTPUT))//and if it's a digital output pin
@@ -51,11 +60,11 @@ public class Server {
 
 	public static void main(String[] args) {
 		gpio = GpioFactory.getInstance();
-		//TODO read pins from file
+		PinParser.parseFile("SwitchingLayout.ini").provision();//TODO read pins from file
 		//TODO map switch pins to relay pins and attach sensible listeners
-		pin1 = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_01, "PIN_1", PinState.HIGH);//TODO HARDCODED make pin 1 an output pin and set it to HIGH
-		myButton = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02, PinPullResistance.PULL_DOWN);//TODO HARDCODED make pin2 an input pin and enable pulldown resistor to avoid floating value pin
-		myButton.addListener(new ButtonListener(1));//attach listener to button
+//		provisionOutputPin(1);
+//		GpioPinDigitalInput tempButton =provisionInputPin(2);
+//		tempButton.addListener(new ButtonListener(1));//attach listener to button
 		
 		try {
 			mySocket=new ServerSocket(SERVERTCP);//open the acceptor socket
@@ -73,6 +82,21 @@ public class Server {
 				e1.printStackTrace();
 			}
 		}
+	}
+
+
+
+	public static GpioPinDigitalInput provisionInputPin(int i) {
+		System.out.println("provisioning "+i+" for input");
+		return gpio.provisionDigitalInputPin(pins[i],("PIN_"+i), PinPullResistance.PULL_DOWN);//provision an input pin and enable pulldown resistor to avoid floating value pin
+	}
+
+
+
+	public static GpioPinDigitalOutput provisionOutputPin(int i) {
+		System.out.println("provisioning "+i+" for output");
+		return gpio.provisionDigitalOutputPin(pins[i], ("PIN_"+i), PinState.HIGH);//provision an output pin and set it to HIGH
+		
 	}
 
 }
