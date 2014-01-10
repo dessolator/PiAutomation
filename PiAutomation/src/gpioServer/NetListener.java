@@ -34,7 +34,7 @@ public class NetListener extends Thread {
 				 String sentence = inFromClient.readUTF();//read the command
 				 sentence=sentence.trim();//rip off the leading and trailing '\0'
 				 String [] parts=sentence.split("_");//split the command and the pin number
-				 System.out.println(parts[0]);//print out the received command
+//				 System.out.println(parts[0]);//print out the received command
 				 
 				 if(parts[0].trim().equals(STATUS)){//if the status was queried
 					 if(Server.getDigitalOutputPinByNumber(Integer.parseInt(parts[1])).getState().equals(PinState.HIGH)){//if the pin status is high

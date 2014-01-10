@@ -68,7 +68,7 @@ public class UIButtonPanel extends JPanel implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		try{
 			if ("flip".equals(e.getActionCommand())) {
-	            Client.flip(4);//if the flip button was pressed flip the switch.
+	            Client.flip(1);//if the flip button was pressed flip the switch.
 	            return;
 	        } 
 			if("quit".equals(e.getActionCommand())){
@@ -76,7 +76,7 @@ public class UIButtonPanel extends JPanel implements ActionListener{
 				return;
 			}
 			if("query".equals(e.getActionCommand())) {
-	        	if(Client.query(4)==RelayStatus.ON){//if the query button was pressed query the switch.
+	        	if(Client.query(1)==RelayStatus.ON){//if the query button was pressed query the switch.
 					System.out.println("it's on");
 				}
 				else{

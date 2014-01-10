@@ -38,7 +38,7 @@ public class Client {
 	}
 
 	public static void main(String[] args) {
-			makeUI();//start the measly GraphicUserInterface 
+			makeUI();//TODO HARDCODED start the measly GraphicUserInterface 
 	}
 	
 	

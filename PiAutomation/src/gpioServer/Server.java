@@ -87,14 +87,14 @@ public class Server {
 
 
 	public static GpioPinDigitalInput provisionInputPin(int i) {
-		System.out.println("provisioning "+i+" for input");
+//		System.out.println("provisioning "+i+" for input");
 		return gpio.provisionDigitalInputPin(pins[i],("PIN_"+i), PinPullResistance.PULL_DOWN);//provision an input pin and enable pulldown resistor to avoid floating value pin
 	}
 
 
 
 	public static GpioPinDigitalOutput provisionOutputPin(int i) {
-		System.out.println("provisioning "+i+" for output");
+//		System.out.println("provisioning "+i+" for output");
 		return gpio.provisionDigitalOutputPin(pins[i], ("PIN_"+i), PinState.HIGH);//provision an output pin and set it to HIGH
 		
 	}
