@@ -18,6 +18,12 @@ import static gpioCommon.NetConstants.FLIP;
 import static gpioCommon.NetConstants.SERVERTCP;
 
 
+
+
+
+//TODO implement broadcaster.
+//TODO implement house layout read.
+//TODO implement some means of authentication.
 public class Client {
 	static InetAddress sendAddress;//Host IP address
 	static Socket mySocket;//TCP Socket for communication with the host
@@ -26,7 +32,7 @@ public class Client {
 	static JFrame frame;//UIFrame for the client
 	static{
 		try {
-			sendAddress= InetAddress.getByName("192.168.1.3");//TODO HARDCODED initialize the server address
+			sendAddress= InetAddress.getByName("192.168.1.101");//TODO HARDCODED initialize the server address
 			mySocket= new Socket(sendAddress,SERVERTCP);//initialize the server socket
 			outToServer = new DataOutputStream(mySocket.getOutputStream());//initialize output stream to server
 			inFromServer = new DataInputStream(mySocket.getInputStream());//initialize input stream from server

@@ -1,10 +1,17 @@
 package gpioServer;
 
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+
 import com.pi4j.io.gpio.Pin;
+
+import static gpioCommon.NetConstants.HIGH;
+import static gpioCommon.NetConstants.LOW;
 import static gpioCommon.NetConstants.SERVERTCP;
+
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPin;
@@ -15,10 +22,15 @@ import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 
+
+
+//TODO implement broadcast listener. (server auto-search)
+//TODO implement some means of authentication.
 public class Server {
-	public static GpioController gpio;//GPIO allocator
-	static ServerSocket mySocket;//acceptor socket
-	static Pin [] pins={
+	private static GpioController gpio;//GPIO allocator
+	private static ArrayList<NetListener> myListeners=new ArrayList<NetListener>();	
+	private static ServerSocket mySocket;//acceptor socket
+	private static Pin [] pins={
 			RaspiPin.GPIO_00,RaspiPin.GPIO_01,
 			RaspiPin.GPIO_02,RaspiPin.GPIO_03,
 			RaspiPin.GPIO_04,RaspiPin.GPIO_05,
@@ -35,8 +47,17 @@ public class Server {
 	 * Function used to trigger an output pin in a synchronized manner.
 	 * @param i The pin to trigger.
 	 */
-	public static synchronized void synchronizedToggle(int i){//TODO need to make this more concurrent.
+	public static synchronized void synchronizedToggle(final int i){//TODO need to make this more concurrent.
 		getDigitalOutputPinByNumber(i).toggle();//toggle the switch in a synchronized manner
+		new Thread(){
+			public void run(){
+				for(NetListener n : myListeners){
+					n.notifyOfChange(i);
+				}
+			}
+			
+		}.start();
+		
 	}
 	
 	
@@ -60,11 +81,7 @@ public class Server {
 
 	public static void main(String[] args) {
 		gpio = GpioFactory.getInstance();
-		PinParser.parseFile("SwitchingLayout.ini").provision();//TODO read pins from file
-		//TODO map switch pins to relay pins and attach sensible listeners
-//		provisionOutputPin(1);
-//		GpioPinDigitalInput tempButton =provisionInputPin(2);
-//		tempButton.addListener(new ButtonListener(1));//attach listener to button
+		PinParser.parseFile("/home/pi/SwitchingLayout.ini").provision();
 		
 		try {
 			mySocket=new ServerSocket(SERVERTCP);//open the acceptor socket
@@ -72,6 +89,7 @@ public class Server {
 				Socket accepted=mySocket.accept();//open a new socket for the new connection
 				NetListener myNetListener= new NetListener(accepted);//attach a listener to the new socket
 				myNetListener.start();//start the socket listener
+				myListeners.add(myNetListener);
 			}
 			
 		} catch (IOException e) {
@@ -87,16 +105,23 @@ public class Server {
 
 
 	public static GpioPinDigitalInput provisionInputPin(int i) {
-//		System.out.println("provisioning "+i+" for input");
 		return gpio.provisionDigitalInputPin(pins[i],("PIN_"+i), PinPullResistance.PULL_DOWN);//provision an input pin and enable pulldown resistor to avoid floating value pin
 	}
 
 
 
 	public static GpioPinDigitalOutput provisionOutputPin(int i) {
-//		System.out.println("provisioning "+i+" for output");
 		return gpio.provisionDigitalOutputPin(pins[i], ("PIN_"+i), PinState.HIGH);//provision an output pin and set it to HIGH
 		
+	}
+
+
+
+	public static String getPinStatusString(int i) {
+		if(getDigitalOutputPinByNumber(i).getState().equals(PinState.HIGH)){//if the pin status is high
+			return HIGH;//make appropriate message
+		 }
+			 return LOW;//make appropriate message
 	}
 
 }
