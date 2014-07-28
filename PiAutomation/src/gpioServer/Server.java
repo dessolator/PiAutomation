@@ -30,7 +30,7 @@ public class Server {
 	private static GpioController gpio;//GPIO allocator
 	private static ArrayList<NetListener> myListeners=new ArrayList<NetListener>();	
 	private static ServerSocket mySocket;//acceptor socket
-	private static Pin [] pins={
+	static Pin [] pins={
 			RaspiPin.GPIO_00,RaspiPin.GPIO_01,
 			RaspiPin.GPIO_02,RaspiPin.GPIO_03,
 			RaspiPin.GPIO_04,RaspiPin.GPIO_05,
