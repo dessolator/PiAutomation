@@ -52,6 +52,7 @@ public class Server {
 		new Thread(){
 			public void run(){
 				for(NetListener n : myListeners){
+					System.out.println(n.mySocket.getInetAddress().toString());
 					n.notifyOfChange(i);
 				}
 			}
@@ -90,6 +91,7 @@ public class Server {
 				NetListener myNetListener= new NetListener(accepted);//attach a listener to the new socket
 				myNetListener.start();//start the socket listener
 				myListeners.add(myNetListener);
+				System.out.println("MOO");
 			}
 			
 		} catch (IOException e) {

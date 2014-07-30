@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.PinState;
 
 import static gpioCommon.NetConstants.FLIP;
@@ -55,23 +56,30 @@ public class NetListener extends Thread {
 					 outToClient.writeUTF(sendData);//send the appropriate response 
 					 outToClient.flush();//flush the stream.
 				 }
-				 if(parts[0].equals(FLIP)){//if the pin is to be flipped
+				 if(parts[0].trim().equals(FLIP)){//if the pin is to be flipped
 					 Server.synchronizedToggle(Integer.parseInt(parts[1]));//flip the pin
 				 }
 				 if (parts[0].trim().equals("FULLSTATUS")) {
+					 	System.out.println("RECEIVED REQUEST");
 						sendData = "FULLSTATUSREPLY";
 						for (int i = 0; i < Server.pins.length; i++) {
+							GpioPinDigitalOutput mPin=Server.getDigitalOutputPinByNumber(i);
+							if(mPin!=null){
 							sendData = sendData + "_" + i + ',';
-							if (Server.getDigitalOutputPinByNumber(i).getState().equals(PinState.HIGH)) {
-								sendData = sendData + "1";
-							} else {
-								sendData = sendData + "0";
+								if (mPin.getState().equals(PinState.HIGH)) {
+									sendData = sendData + "1";
+								} else {
+									sendData = sendData + "0";
+								}
 							}
 
 						}
+
 						outToClient.writeUTF(sendData);
 						outToClient.flush();
-					}
+						System.out.println("REPLIED TO REQUEST");
+						System.out.println(sendData);
+				}
 			} catch (IOException e) {
 				break;
 			}//read the command
