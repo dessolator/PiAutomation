@@ -29,6 +29,7 @@ import com.pi4j.io.gpio.RaspiPin;
 public class Server {
 	private static GpioController gpio;//GPIO allocator
 	private static ArrayList<NetListener> myListeners=new ArrayList<NetListener>();	
+	private static UDPListenerThread mUDPListenerThread = new UDPListenerThread();
 	private static ServerSocket mySocket;//acceptor socket
 	static Pin [] pins={
 			RaspiPin.GPIO_00,RaspiPin.GPIO_01,
@@ -83,8 +84,10 @@ public class Server {
 	public static void main(String[] args) {
 		gpio = GpioFactory.getInstance();
 		PinParser.parseFile("/home/pi/SwitchingLayout.ini").provision();
+		mUDPListenerThread.start();
 		
 		try {
+			
 			mySocket=new ServerSocket(SERVERTCP);//open the acceptor socket
 			while(true){
 				Socket accepted=mySocket.accept();//open a new socket for the new connection
@@ -96,6 +99,8 @@ public class Server {
 			
 		} catch (IOException e) {
 			e.printStackTrace();//if opening a server socket fails or the socket gets broken.
+			//TODO kill listeners
+			//TODO kill UDPListener
 			try {
 				mySocket.close();//attempt to close the socket.
 			} catch (IOException e1) {
